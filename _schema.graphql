@@ -295,6 +295,7 @@ type Order {
     last: Int
   ): LineItemConnection
   mode: OrderModeEnum
+  offerTotalCents: Int
   offers(
     # Returns the elements in the list that come after the specified cursor.
     after: String
