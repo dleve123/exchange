@@ -1,8 +1,9 @@
 class OrderApproveService
   attr_reader :order
-  def initialize(order, by = nil)
+
+  def initialize(order, user_id = nil)
     @order = order
-    @by = by
+    @user_id = user_id
     @transaction = nil
   end
 
@@ -21,7 +22,7 @@ class OrderApproveService
   def post_process
     record_stats
     @order.line_items.each { |li| RecordSalesTaxJob.perform_later(li.id) }
-    PostOrderNotificationJob.perform_later(@order.id, Order::APPROVED, @by)
+    PostOrderNotificationJob.perform_later(@order.id, Order::APPROVED, @user_id)
     OrderFollowUpJob.set(wait_until: @order.state_expires_at).perform_later(@order.id, @order.state)
     ReminderFollowUpJob.set(wait_until: @order.state_expires_at - 2.hours).perform_later(@order.id, @order.state)
   end
