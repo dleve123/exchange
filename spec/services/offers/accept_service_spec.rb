@@ -2,9 +2,16 @@ require 'rails_helper'
 
 describe Offers::AcceptService, type: :services do
   describe '#process!' do
-    subject(:call_service) { described_class.new(offer: offer, order: order).process! }
+    subject(:call_service) do
+      described_class.new(
+        offer: offer,
+        order: order,
+        user_id: current_user_id
+      ).process!
+    end
     let!(:order) { Fabricate(:order, state: Order::SUBMITTED) }
     let!(:offer) { Fabricate(:offer, order: order) }
+    let(:current_user_id) { 'user-id-123' }
 
     before do
       # last_offer is set in Orders::InitialOffer. "Stubbing" out the
@@ -27,6 +34,15 @@ describe Offers::AcceptService, type: :services do
 
         expect(dd_statsd).to have_received(:increment).with('order.approve')
       end
+
+      it 'queues a PostOrderNotificationJob with the current user id with the approved action' do
+        allow(PostOrderNotificationJob).to receive(:perform_later)
+
+        call_service
+
+        expect(PostOrderNotificationJob).to have_received(:perform_later)
+          .with(order.id, Order::APPROVED, current_user_id)
+      end
     end
 
     context "when we can't approve the order" do
@@ -40,6 +56,15 @@ describe Offers::AcceptService, type: :services do
         expect { call_service }.to raise_error(Errors::ValidationError)
 
         expect(dd_statsd).to_not have_received(:increment)
+      end
+
+      it 'does not a queue a PostOrderNotificationJob' do
+        allow(PostOrderNotificationJob).to receive(:perform_later)
+
+        expect { call_service }.to raise_error(Errors::ValidationError)
+
+        expect(PostOrderNotificationJob).to_not have_received(:perform_later)
+          .with(order.id, Order::APPROVED, current_user_id)
       end
     end
 
@@ -70,6 +95,15 @@ describe Offers::AcceptService, type: :services do
         expect { call_service }.to raise_error(Errors::ValidationError)
 
         expect(dd_statsd).to_not have_received(:increment)
+      end
+
+      it 'does not a queue a PostOrderNotificationJob' do
+        allow(PostOrderNotificationJob).to receive(:perform_later)
+
+        expect { call_service }.to raise_error(Errors::ValidationError)
+
+        expect(PostOrderNotificationJob).to_not have_received(:perform_later)
+          .with(order.id, Order::APPROVED, current_user_id)
       end
     end
   end
