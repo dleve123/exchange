@@ -23,7 +23,7 @@ describe OrderApproveService, type: :services do
         expect(order.reload.state).to eq Order::SUBMITTED
       end
       it 'does not queue any followup job' do
-        expect(PostNotificationJob).not_to receive(:perform_later)
+        expect(PostOrderNotificationJob).not_to receive(:perform_later)
         expect(OrderFollowUpJob).not_to receive(:set)
         expect(RecordSalesTaxJob).not_to receive(:perform_later)
       end
@@ -38,7 +38,7 @@ describe OrderApproveService, type: :services do
     end
     context 'with failed post_process' do
       it 'is in approved state' do
-        allow(PostNotificationJob).to receive(:perform_later).and_raise('Perform what later?!')
+        allow(PostOrderNotificationJob).to receive(:perform_later).and_raise('Perform what later?!')
         expect { service.process! }.to raise_error(RuntimeError).and change(order.transactions, :count).by(1)
         expect(order.reload.state).to eq Order::APPROVED
       end
@@ -51,8 +51,8 @@ describe OrderApproveService, type: :services do
       it 'adds successful transaction' do
         expect(order.transactions.last.status).to eq Transaction::SUCCESS
       end
-      it 'queues PostNotificationJob' do
-        expect(PostNotificationJob).to have_been_enqueued.with(order.id, Order::APPROVED, user_id)
+      it 'queues PostOrderNotificationJob' do
+        expect(PostOrderNotificationJob).to have_been_enqueued.with(order.id, Order::APPROVED, user_id)
       end
       it 'queues OrderFollowUpJob' do
         expect(OrderFollowUpJob).to have_been_enqueued.with(order.id, Order::APPROVED)

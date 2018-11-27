@@ -34,7 +34,7 @@ describe OrderCancellationService, type: :services do
         expect(order.state_reason).to eq Order::REASONS[Order::CANCELED][:seller_rejected]
       end
       it 'queues notification job' do
-        expect(PostNotificationJob).to have_been_enqueued.with(order.id, Order::CANCELED, user_id)
+        expect(PostOrderNotificationJob).to have_been_enqueued.with(order.id, Order::CANCELED, user_id)
       end
     end
     context 'with an unsuccessful refund' do
@@ -80,7 +80,7 @@ describe OrderCancellationService, type: :services do
       end
 
       it 'queues notification job' do
-        expect(PostNotificationJob).to have_been_enqueued.with(order.id, Order::CANCELED)
+        expect(PostOrderNotificationJob).to have_been_enqueued.with(order.id, Order::CANCELED)
       end
     end
     context 'with an unsuccessful refund' do
@@ -127,7 +127,7 @@ describe OrderCancellationService, type: :services do
             expect(order.state).to eq Order::REFUNDED
           end
           it 'queues notification job' do
-            expect(PostNotificationJob).to have_been_enqueued.with(order.id, Order::REFUNDED, user_id)
+            expect(PostOrderNotificationJob).to have_been_enqueued.with(order.id, Order::REFUNDED, user_id)
           end
         end
         context 'with an unsuccessful refund' do

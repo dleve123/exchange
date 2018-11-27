@@ -21,7 +21,7 @@ class OrderApproveService
   def post_process
     record_stats
     @order.line_items.each { |li| RecordSalesTaxJob.perform_later(li.id) }
-    PostNotificationJob.perform_later(@order.id, Order::APPROVED, @by)
+    PostOrderNotificationJob.perform_later(@order.id, Order::APPROVED, @by)
     OrderFollowUpJob.set(wait_until: @order.state_expires_at).perform_later(@order.id, @order.state)
     ReminderFollowUpJob.set(wait_until: @order.state_expires_at - 2.hours).perform_later(@order.id, @order.state)
   end

@@ -31,7 +31,7 @@ describe Offers::SubmitOrderService, type: :services do
     describe 'failed process' do
       before do
         order.update!(last_offer: offer)
-        expect(PostNotificationJob).not_to receive(:perform_later)
+        expect(PostOrderNotificationJob).not_to receive(:perform_later)
         expect(OrderFollowUpJob).not_to receive(:perform_later)
         expect(ReminderFollowUpJob).not_to receive(:perform_later)
       end
@@ -154,7 +154,7 @@ describe Offers::SubmitOrderService, type: :services do
         allow(GravityService).to receive(:get_credit_card).with(credit_card_id).and_return(credit_card)
         allow(Adapters::GravityV1).to receive(:get).with("/partner/#{partner_id}/all").and_return(gravity_v1_partner)
         expect(Exchange).to receive_message_chain(:dogstatsd, :increment).with('order.submit')
-        expect(PostNotificationJob).to receive(:perform_later).once.with(order.id, Order::SUBMITTED, user_id)
+        expect(PostOrderNotificationJob).to receive(:perform_later).once.with(order.id, Order::SUBMITTED, user_id)
       end
       it 'submits the offer' do
         expect do

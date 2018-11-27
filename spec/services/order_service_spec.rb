@@ -70,7 +70,7 @@ describe OrderService, type: :services do
       end
       it 'queues job to post fulfillment event' do
         OrderService.fulfill_at_once!(order, fulfillment_params, user_id)
-        expect(PostNotificationJob).to have_been_enqueued.with(order.id, Order::FULFILLED, user_id)
+        expect(PostOrderNotificationJob).to have_been_enqueued.with(order.id, Order::FULFILLED, user_id)
       end
     end
     Order::STATES.reject { |s| s == Order::APPROVED }.each do |state|

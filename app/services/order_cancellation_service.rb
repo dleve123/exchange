@@ -9,7 +9,7 @@ class OrderCancellationService
     @order.seller_lapse! do
       process_refund
     end
-    PostNotificationJob.perform_later(@order.id, Order::CANCELED)
+    PostOrderNotificationJob.perform_later(@order.id, Order::CANCELED)
   ensure
     @order.transactions << @transaction if @transaction.present?
   end
@@ -18,7 +18,7 @@ class OrderCancellationService
     @order.reject! do
       process_refund
     end
-    PostNotificationJob.perform_later(@order.id, Order::CANCELED, @by)
+    PostOrderNotificationJob.perform_later(@order.id, Order::CANCELED, @by)
   ensure
     @order.transactions << @transaction if @transaction.present?
   end
@@ -28,7 +28,7 @@ class OrderCancellationService
       process_refund
     end
     record_stats
-    PostNotificationJob.perform_later(@order.id, Order::REFUNDED, @by)
+    PostOrderNotificationJob.perform_later(@order.id, Order::REFUNDED, @by)
   ensure
     @order.transactions << @transaction if @transaction.present?
   end

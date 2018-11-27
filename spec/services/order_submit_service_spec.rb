@@ -126,7 +126,7 @@ describe OrderSubmitService, type: :services do
         end
 
         it 'queues a job for posting event' do
-          expect(PostNotificationJob).to have_been_enqueued
+          expect(PostOrderNotificationJob).to have_been_enqueued
         end
 
         it 'does not queue a job for posting transaction event' do
@@ -159,7 +159,7 @@ describe OrderSubmitService, type: :services do
           StripeMock.prepare_card_error(:card_declined, :new_charge)
           allow(GravityService).to receive(:get_merchant_account).with(partner_id).and_return(partner_merchant_accounts.first)
           allow(GravityService).to receive(:get_credit_card).with(credit_card_id).and_return(credit_card)
-          expect(PostNotificationJob).not_to receive(:perform_later)
+          expect(PostOrderNotificationJob).not_to receive(:perform_later)
           expect(OrderFollowUpJob).not_to receive(:perform_later)
           expect { service.process! }.to raise_error do |error|
             expect(error).to be_a(Errors::ProcessingError)

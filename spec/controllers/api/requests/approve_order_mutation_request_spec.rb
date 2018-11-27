@@ -94,7 +94,7 @@ describe Api::GraphqlController, type: :request do
 
       it 'queues a job for posting events' do
         client.execute(mutation, approve_order_input)
-        expect(PostNotificationJob).to have_been_enqueued
+        expect(PostOrderNotificationJob).to have_been_enqueued
       end
 
       it 'queues a job for rejecting the order when the order should expire' do
