@@ -28,6 +28,7 @@ class OrderEvent < Events::BaseEvent
     tax_total_cents
     transaction_fee_cents
     updated_at
+    total_list_price_cents
   ].freeze
 
   def self.post(order, action, user_id)

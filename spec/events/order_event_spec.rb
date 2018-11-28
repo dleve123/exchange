@@ -104,6 +104,7 @@ describe OrderEvent, type: :events do
       expect(event.properties[:buyer_phone_number]).to eq '00123459876'
       expect(event.properties[:shipping_region]).to eq 'IL'
       expect(event.properties[:state_expires_at]).to eq Time.parse('2018-08-18 15:48:00 -0400')
+      expect(event.properties[:total_list_price_cents]).to eq(400)
     end
   end
   it 'returns state_reason when available' do
