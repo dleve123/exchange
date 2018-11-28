@@ -3,6 +3,7 @@ require 'rails_helper'
 describe OrderEvent, type: :events do
   before { Timecop.freeze(Time.parse('2018-08-16 15:48:00 -0400')) }
   after { Timecop.return }
+
   let(:partner_id) { 'partner-1' }
   let(:user_id) { 'user-1' }
   let(:shipping_info) do
@@ -18,23 +19,26 @@ describe OrderEvent, type: :events do
     }
   end
   let(:order) do
-    Fabricate(:order,
-              buyer_id: user_id,
-              buyer_type: Order::USER,
-              buyer_phone_number: '00123459876',
-              seller_id: partner_id,
-              seller_type: 'gallery',
-              currency_code: 'usd',
-              shipping_total_cents: 50,
-              tax_total_cents: 30,
-              items_total_cents: 300,
-              buyer_total_cents: 380,
-              **shipping_info)
+    Fabricate(
+      :order,
+      buyer_id: user_id,
+      buyer_type: Order::USER,
+      buyer_phone_number: '00123459876',
+      seller_id: 'partner-1',
+      seller_type: 'gallery',
+      currency_code: 'usd',
+      shipping_total_cents: 50,
+      tax_total_cents: 30,
+      items_total_cents: 300,
+      buyer_total_cents: 380,
+      state: 'submitted',
+      **shipping_info
+    )
   end
-  let(:line_item1) { Fabricate(:line_item, list_price_cents: 200, order: order, commission_fee_cents: 40) }
-  let(:line_item2) { Fabricate(:line_item, list_price_cents: 100, quantity: 2, order: order, commission_fee_cents: 20) }
-  let!(:line_items) { [line_item1, line_item2] }
-  let(:line_item_properties) do
+  let!(:line_item1) { Fabricate(:line_item, list_price_cents: 200, order: order, commission_fee_cents: 40) }
+  let!(:line_item2) { Fabricate(:line_item, list_price_cents: 100, quantity: 2, order: order, commission_fee_cents: 20) }
+
+  let(:expected_line_item_properties) do
     [
       {
         price_cents: 200,
@@ -77,7 +81,6 @@ describe OrderEvent, type: :events do
 
   describe '#properties' do
     it 'returns correct properties for a submitted order' do
-      order.submit!
       expect(event.properties[:mode]).to eq Order::BUY
       expect(event.properties[:code]).to eq order.code
       expect(event.properties[:currency_code]).to eq 'USD'
@@ -94,7 +97,7 @@ describe OrderEvent, type: :events do
       expect(event.properties[:updated_at]).not_to be_nil
       expect(event.properties[:created_at]).not_to be_nil
       expect(event.properties[:line_items].count).to eq 2
-      expect(event.properties[:line_items]).to match_array(line_item_properties)
+      expect(event.properties[:line_items]).to match_array(expected_line_item_properties)
       expect(event.properties[:shipping_name]).to eq 'Fname Lname'
       expect(event.properties[:shipping_address_line1]).to eq '123 Main St'
       expect(event.properties[:shipping_address_line2]).to eq 'Apt 2'
