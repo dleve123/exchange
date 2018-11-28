@@ -88,7 +88,6 @@ describe TransactionEvent, type: :events do
       expect(event.properties[:order][:seller_id]).to eq partner_id
       expect(event.properties[:order][:seller_type]).to eq 'gallery'
       expect(event.properties[:order][:items_total_cents]).to eq 300
-      expect(event.properties[:order][:total_list_price_cents]).to eq 400
       expect(event.properties[:order][:updated_at]).not_to be_nil
       expect(event.properties[:order][:created_at]).not_to be_nil
       expect(event.properties[:order][:line_items].count).to eq 2

@@ -29,7 +29,6 @@ class TransactionEvent < Events::BaseEvent
         currency_code: order.currency_code,
         fulfillment_type: order.fulfillment_type,
         items_total_cents: order.items_total_cents,
-        total_list_price_cents: order.total_list_price_cents,
         line_items: order.line_items.map { |li| line_item_detail(li) },
         seller_id: order.seller_id,
         seller_type: order.seller_type,
