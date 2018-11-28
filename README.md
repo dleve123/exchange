@@ -50,8 +50,11 @@ rails db:create
 rails db:setup
 ```
 
-```
-$ rails s
+Then run Procfile.dev via foreman to start the web (rails) and worker (sidekiq)
+services:
+
+```bash
+foreman start -f Procfile.dev
 ```
 
 ## Did You Change Models?

@@ -31,6 +31,7 @@ fi
 # STEP 2
 printf "${CLEAR_LINE}[2/${STEPS}]  installing gems"
 bundle install > /dev/null
+gem install foreman
 
 # STEP 3
 printf "${CLEAR_LINE}[3/${STEPS}]  adding remotes"
