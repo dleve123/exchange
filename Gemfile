@@ -32,6 +32,7 @@ group :development, :test do
   gem 'graphlient'
   gem 'rspec-rails'
   gem 'rubocop'
+  gem 'fabrication'
 end
 
 group :development do
@@ -42,7 +43,6 @@ group :test do
   gem 'capybara'
   gem 'coveralls', require: false
   gem 'danger'
-  gem 'fabrication'
   gem 'selenium-webdriver'
   gem 'stripe-ruby-mock', '~> 2.5.4', require: 'stripe_mock'
   gem 'timecop'
